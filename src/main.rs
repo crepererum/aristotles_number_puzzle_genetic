@@ -1,6 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::collections::HashSet;
+use std::convert::TryInto;
 
 ///     00  01  02
 ///   03  04  05  06
@@ -27,9 +28,9 @@ const INDICES: &[&[usize]] = &[
 ];
 const POPULATION_SIZE: usize = 10000;
 
-type Candidate = Vec<u8>;
+type Candidate = [u8; 19];
 
-fn eval_single(candidate: &[u8]) -> i64 {
+fn eval_single(candidate: &Candidate) -> i64 {
     let mut field_scores: Vec<i64> = (0..candidate.len()).map(|_| 0).collect();
     let mut overall_score = 0i64;
     for row in INDICES {
@@ -55,9 +56,9 @@ fn generate_new_candidate<R>(mut rng: &mut R) -> Candidate
 where
     R: Rng,
 {
-    let mut candidate: Candidate = (1..20).collect();
+    let mut candidate: Vec<u8> = (1..20).collect();
     candidate.shuffle(&mut rng);
-    candidate
+    candidate.as_slice().try_into().unwrap()
 }
 
 fn generate_population<R>(mut rng: &mut R) -> HashSet<Candidate>
@@ -71,11 +72,11 @@ where
     population
 }
 
-fn mutate_single<R>(candidate: &[u8], rng: &mut R) -> Candidate
+fn mutate_single<R>(candidate: &Candidate, rng: &mut R) -> Candidate
 where
     R: Rng,
 {
-    let mut candidate2 = candidate.to_vec();
+    let mut candidate2 = candidate.clone();
     let n_mutations = rng.gen_range(1, candidate2.len());
     for _ in 0..n_mutations {
         let i1 = rng.gen_range(0, candidate2.len());

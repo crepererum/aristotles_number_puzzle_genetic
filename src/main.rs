@@ -109,15 +109,18 @@ fn select(mut population: HashSet<Candidate>) -> HashSet<Candidate> {
     v.drain(..).take(POPULATION_SIZE).map(|x| x.1).collect()
 }
 
-fn report(population: &HashSet<Candidate>) {
+fn report(population: &HashSet<Candidate>) -> bool {
     let ratings = eval_all(&mut population.clone());
-    println!("min: {}", ratings.iter().map(|x| x.0).min().unwrap());
+    let min = ratings.iter().map(|x| x.0).min().unwrap();
+    println!("min: {}", min);
     println!("max: {}", ratings.iter().map(|x| x.0).max().unwrap());
     println!(
         "avg: {}",
         ratings.iter().map(|x| x.0).sum::<i64>() as f64 / ratings.len() as f64
     );
     println!("best: {:?}", ratings.iter().next().map(|x| &x.1).unwrap());
+
+    min == 0
 }
 
 fn main() {
@@ -130,6 +133,9 @@ fn main() {
             mutate_population(&mut population, &mut rng);
             population = select(population);
         }
-        report(&population);
+        if report(&population) {
+            break;
+        }
     }
+    println!("done.");
 }

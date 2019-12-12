@@ -11,3 +11,6 @@ rand = "0.7"
 
 [profile.release]
 debug = true
+panic = "abort"
+lto = true
+codegen-units = 1
